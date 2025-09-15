@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { Download, RefreshCcw } from "lucide-react";
 
 // Set PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -13,24 +14,38 @@ export default function PDFViewer() {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [inputValue, setInputValue] = useState<string>("1");
   const [scale, setScale] = useState<number>(1.0);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const handleResize = () => {
+    const mobile = window.innerWidth < 640;
+    setIsMobile(mobile);
+    setScale((prev) => {
+      if (mobile && prev > 0.7) return 0.7;
+      if (!mobile && prev < 1.0) return 1.0;
+      return prev;
+    });
+  };
 
   useEffect(() => {
+    handleResize();
+    console.log("isMobile", isMobile);
+    window.addEventListener("resize", handleResize);
+
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log('entries----', entries);
+        console.log("entries----", entries);
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
 
-          console.log('visible--------------', visible)
+        console.log("visible--------------", visible);
 
         if (visible[0]) {
           const page = Number(visible[0].target.getAttribute("data-page"));
           setPageNumber(page);
           setInputValue(String(page));
-          console.log('page---', page);
+          console.log("page---", page);
         }
       },
       { root: containerRef.current, threshold: 0.6 }
@@ -71,60 +86,73 @@ export default function PDFViewer() {
     link.click();
   };
 
+  const pdfFile = "/sample-flyer.pdf";
+  const pdfName =
+    pdfFile
+      .split("/")
+      .pop()
+      ?.replace(/\.pdf$/i, "") || "";
+
   return (
     <div className="flex flex-col h-screen">
-      <div className="fixed top-0 left-0 right-0 bg-white p-2 shadow-md flex items-center gap-2 z-10">
-        <span>
-          Page {pageNumber} of {numPages}
-        </span>
-        <input
-          type="number"
-          min={1}
-          max={numPages}
-          className="border p-1 w-16"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              inputHandler(Number(inputValue));
-            }
-          }}
-          onBlur={() => inputHandler(Number(inputValue))}
-        />
-        {/* Zoom controls */}
-        <div className="ml-4 flex gap-2">
-          <button
-            onClick={zoomOut}
-            className="bg-gray-500 text-white px-2 py-1 rounded"
-          >
-            -
-          </button>
-          <span>{Math.round(scale * 100)}%</span>
-          <button
-            onClick={zoomIn}
-            className="bg-gray-500 text-white px-2 py-1 rounded"
-          >
-            +
-          </button>
-          <button
-            onClick={resetZoom}
-            className="bg-gray-500 text-white px-2 py-1 rounded"
-          >
-            Reset
-          </button>
+      <div className="fixed top-0 left-0 right-0 bg-[#3c3c3c] p-2 shadow-md flex items-center gap-2 z-10 text-white hidden sm:flex">
+        <span className="font-medium ml-5">{pdfName}</span>
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+          <span>Page</span>
+          <input
+            type="number"
+            min={1}
+            max={numPages}
+            className="bg-black p-1 w-10"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                inputHandler(Number(inputValue));
+              }
+            }}
+            onBlur={() => inputHandler(Number(inputValue))}
+          />
+          <span>/ {numPages}</span>
+          <div className="ml-4 flex gap-2">
+            <div className="w-px h-6 bg-gray-300"></div>
+            <button
+              onClick={zoomOut}
+              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
+            >
+              -
+            </button>
+            <span className="bg-black p-1 w-16">
+              {Math.round(scale * 100)}%
+            </span>
+            <button
+              onClick={zoomIn}
+              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
+            >
+              +
+            </button>
+
+            <button
+              onClick={resetZoom}
+              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
+            >
+              <RefreshCcw className="w-5 h-5" />
+            </button>
+            <div className="w-px h-6 bg-gray-300"></div>
+          </div>
         </div>
 
         <button
           onClick={downloadPDF}
-          className="ml-auto bg-blue-500 text-white px-3 py-1 rounded"
+          className="ml-auto text-white px-3 py-1 rounded  hover:bg-[#f1f1f1] transition-colors hover:text-black"
         >
-          Download PDF
+          <Download className="w-5 h-5" />
         </button>
       </div>
 
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-scroll p-4 border"
+        className="flex-1 overflow-y-scroll p-4 border bg-[#28292a]"
       >
         <Document
           file="/sample-flyer.pdf"
