@@ -30,23 +30,18 @@ export default function PDFViewer() {
 
   useEffect(() => {
     handleResize();
-    console.log("isMobile", isMobile);
     window.addEventListener("resize", handleResize);
 
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log("entries----", entries);
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        console.log("visible--------------", visible);
 
         if (visible[0]) {
           const page = Number(visible[0].target.getAttribute("data-page"));
           setPageNumber(page);
           setInputValue(String(page));
-          console.log("page---", page);
         }
       },
       { root: containerRef.current, threshold: 0.6 }
@@ -97,10 +92,8 @@ export default function PDFViewer() {
   return (
     <div className="flex flex-col h-screen">
       <div className="fixed top-0 left-0 right-0 bg-[#3c3c3c] p-2 shadow-md flex items-center gap-2 z-10 text-white hidden sm:flex">
-         <FileText className="w-5 h-5 text-red-600 ml-5 text-white" />
-        <span className="font-medium ml-1">
-          {pdfName}
-        </span>
+        <FileText className="w-5 h-5 text-red-600 ml-5 text-white" />
+        <span className="font-medium ml-1">{pdfName}</span>
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
           <span>Page</span>
           <input
