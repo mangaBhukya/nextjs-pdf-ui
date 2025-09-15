@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { Download, RefreshCcw } from "lucide-react";
+import { Download, RefreshCcw, ZoomIn, ZoomOut, FileText } from "lucide-react";
+import Button from "./Button";
 
-// Set PDF.js worker
+// PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function PDFViewer() {
@@ -96,7 +97,10 @@ export default function PDFViewer() {
   return (
     <div className="flex flex-col h-screen">
       <div className="fixed top-0 left-0 right-0 bg-[#3c3c3c] p-2 shadow-md flex items-center gap-2 z-10 text-white hidden sm:flex">
-        <span className="font-medium ml-5">{pdfName}</span>
+         <FileText className="w-5 h-5 text-red-600 ml-5 text-white" />
+        <span className="font-medium ml-1">
+          {pdfName}
+        </span>
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
           <span>Page</span>
           <input
@@ -116,38 +120,32 @@ export default function PDFViewer() {
           <span>/ {numPages}</span>
           <div className="ml-4 flex gap-2">
             <div className="w-px h-6 bg-gray-300"></div>
-            <button
-              onClick={zoomOut}
-              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
-            >
-              -
-            </button>
+
+            <Button onClick={zoomOut} title="Zoom Out">
+              <ZoomOut className="w-5 h-5" />
+            </Button>
+
             <span className="bg-black p-1 w-16">
               {Math.round(scale * 100)}%
             </span>
-            <button
-              onClick={zoomIn}
-              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
-            >
-              +
-            </button>
 
-            <button
-              onClick={resetZoom}
-              className="text-white px-2 py-1 rounded hover:bg-[#f1f1f1] transition-colors hover:text-black"
-            >
+            <Button onClick={zoomIn} title="Zoom In">
+              <ZoomIn className="w-5 h-5" />
+            </Button>
+
+            <Button onClick={resetZoom} title="Reset Zoom">
               <RefreshCcw className="w-5 h-5" />
-            </button>
-            <div className="w-px h-6 bg-gray-300"></div>
+            </Button>
           </div>
         </div>
 
-        <button
+        <Button
           onClick={downloadPDF}
-          className="ml-auto text-white px-3 py-1 rounded  hover:bg-[#f1f1f1] transition-colors hover:text-black"
+          className="ml-auto mr-10"
+          title="Download PDF"
         >
           <Download className="w-5 h-5" />
-        </button>
+        </Button>
       </div>
 
       <div
