@@ -76,11 +76,11 @@ export default function PDFViewer() {
     }
   };
 
-  const zoomIn = () => setScale((prev) => Math.min(prev + 0.2, 3));
-  const zoomOut = () => setScale((prev) => Math.max(prev - 0.2, 0.5));
-  const resetZoom = () => setScale(1.0);
+  const zoomInHandler = () => setScale((prev) => Math.min(prev + 0.2, 3));
+  const zoomOutHandler = () => setScale((prev) => Math.max(prev - 0.2, 0.5));
+  const resetZoomHandler = () => setScale(1.0);
 
-  const downloadPDF = () => {
+  const pdfDownloadHandler = () => {
     const link = document.createElement("a");
     link.href = "/sample-flyer.pdf";
     link.download = "sample-flyer.pdf";
@@ -112,7 +112,7 @@ export default function PDFViewer() {
           <div className="ml-4 flex gap-2">
             <div className="w-px h-6 bg-gray-300"></div>
 
-            <Button onClick={zoomOut} title="Zoom Out">
+            <Button onClick={zoomOutHandler} title="Zoom Out">
               <ZoomOut className="w-5 h-5" />
             </Button>
 
@@ -120,18 +120,18 @@ export default function PDFViewer() {
               {Math.round(scale * 100)}%
             </span>
 
-            <Button onClick={zoomIn} title="Zoom In">
+            <Button onClick={zoomInHandler} title="Zoom In">
               <ZoomIn className="w-5 h-5" />
             </Button>
 
-            <Button onClick={resetZoom} title="Reset Zoom">
+            <Button onClick={resetZoomHandler} title="Reset Zoom">
               <RefreshCcw className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
         <Button
-          onClick={downloadPDF}
+          onClick={pdfDownloadHandler}
           className="ml-auto mr-10 hidden sm:flex"
           title="Download PDF"
         >
