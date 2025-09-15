@@ -176,6 +176,10 @@ export default function PDFViewer() {
             );
           })}
         </Document>
+
+        <div className="fixed right-2 top-1/2 transform -translate-y-1/2 bg-[#3c3c3c] text-white px-2 py-1 rounded text-xs sm:hidden">
+          {pageNumber} / {numPages}
+        </div>
       </div>
     </div>
   );
