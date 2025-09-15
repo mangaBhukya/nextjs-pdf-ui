@@ -15,12 +15,18 @@ export default function PDFViewer() {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [inputValue, setInputValue] = useState<string>("1");
   const [scale, setScale] = useState<number>(1.0);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const pdfFile = "/sample-flyer.pdf";
+  const pdfName =
+    pdfFile
+      .split("/")
+      .pop()
+      ?.replace(/\.pdf$/i, "") || "";
+
   const handleResize = () => {
     const mobile = window.innerWidth < 640;
-    setIsMobile(mobile);
     setScale((prev) => {
       if (mobile && prev > 0.7) return 0.7;
       if (!mobile && prev < 1.0) return 1.0;
@@ -53,13 +59,12 @@ export default function PDFViewer() {
     return () => observer.disconnect();
   }, [numPages]);
 
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-  }
+  };
 
   const inputHandler = (pageNo: number) => {
     if (pageNo >= 1 && pageNo <= numPages) {
-      setPageNumber(pageNo);
       setPageNumber(pageNo);
       setInputValue(pageNo.toString());
       const pageElement = containerRef.current?.querySelector(
@@ -82,19 +87,12 @@ export default function PDFViewer() {
     link.click();
   };
 
-  const pdfFile = "/sample-flyer.pdf";
-  const pdfName =
-    pdfFile
-      .split("/")
-      .pop()
-      ?.replace(/\.pdf$/i, "") || "";
-
   return (
     <div className="flex flex-col h-screen">
-      <div className="fixed top-0 left-0 right-0 bg-[#3c3c3c] p-2 shadow-md flex items-center gap-2 z-10 text-white hidden sm:flex">
+      <div className="fixed top-0 left-0 right-0 bg-[#3c3c3c] p-2 shadow-md flex items-center gap-2 z-10 text-white">
         <FileText className="w-5 h-5 text-red-600 ml-5 text-white" />
         <span className="font-medium ml-1">{pdfName}</span>
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4 hidden sm:flex">
           <span>Page</span>
           <input
             type="number"
@@ -134,7 +132,7 @@ export default function PDFViewer() {
 
         <Button
           onClick={downloadPDF}
-          className="ml-auto mr-10"
+          className="ml-auto mr-10 hidden sm:flex"
           title="Download PDF"
         >
           <Download className="w-5 h-5" />
@@ -145,10 +143,7 @@ export default function PDFViewer() {
         ref={containerRef}
         className="flex-1 overflow-y-scroll p-4 border bg-[#28292a]"
       >
-        <Document
-          file="/sample-flyer.pdf"
-          onLoadSuccess={onDocumentLoadSuccess}
-        >
+        <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
           {Array.from(new Array(numPages), (_, index) => {
             const pageNo = index + 1;
             return (
